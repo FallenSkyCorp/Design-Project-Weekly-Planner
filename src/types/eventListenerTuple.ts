@@ -1,0 +1,1 @@
+export type EventListenerTuple = [string, EventListenerOrEventListenerObject];

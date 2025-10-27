@@ -1,0 +1,1 @@
+export type TargetEventListenerTuple = [targetEl: HTMLElement, event: string, handler: EventListenerOrEventListenerObject];
