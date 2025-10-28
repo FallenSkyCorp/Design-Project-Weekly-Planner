@@ -1,7 +1,7 @@
 {
 	"name": "design-project-and-weekly-planner",
-	"version": "0.0.1",
-	"description": "A stylish project and weekly planner plugin for Obsidian. It combines elegant design with practical task management to enhance your daily workflow. Perfect for users who value both aesthetics and organization in their productivity tools.",
+	"version": "1.0.1",
+	"description": "A stylish project and weekly planner plugin. It combines elegant design with practical task management to enhance your daily workflow. Perfect for users who value both aesthetics and organization in their productivity tools.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
