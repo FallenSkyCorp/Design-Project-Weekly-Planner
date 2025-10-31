@@ -73,7 +73,6 @@ export class ProjectSection{
 
     this.prevButton = getPrevButton(btnContainer)
     this.nextButton = getNextButton(btnContainer)
-    this.prevButton.style.marginRight = "1vw"
 
     this.container = this.HTMLEl.createEl("div", { cls: "base-grid"})
   }

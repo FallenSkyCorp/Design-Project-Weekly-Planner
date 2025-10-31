@@ -151,11 +151,11 @@ export class MainPageView extends ItemView implements IVaultEventHandler {
     }
 
     protected async onClose(): Promise<void> {
-        this.plugin.deleteView(this.getViewType())
-        this.header.remove()
-        this.dayTaskSection.delete()
-        this.weekTasksSection.delete()
-        this.projectSection.delete()
+        this.plugin.deleteView(this.getViewType())  
+        this.header?.remove()
+        this.dayTaskSection?.delete()
+        this.weekTasksSection?.delete()
+        this.projectSection?.delete()
     }
 
     public async vaultOnCreate(file: TAbstractFile): Promise<void>{
@@ -188,8 +188,8 @@ export class MainPageView extends ItemView implements IVaultEventHandler {
             return f.basename === parentFolder.name
           }
           return false
-        })[0] as TFile;
-        if (!writeFile){
+        })[0];
+        if (!writeFile || !(writeFile instanceof TFile)){
           return;
         }
         const link = `- [[${file.basename}]]`
@@ -226,20 +226,7 @@ export class MainPageView extends ItemView implements IVaultEventHandler {
               }
             }
             await this.projectSection.updateDisplay()
-          }
-          // --- Обработка переименования папки ---
-          else if (file instanceof TFolder) {
-            await this.handleFolderRename(file, oldPath);
-            const proj = this.projectSection.projects.find((p: Project) => {
-              return p.folder.path === this.getParentPath(oldPath);
-            })
-            if (proj) {
-              proj.folder = file.parent ? file.parent : proj.folder;
-            }
-            await this.projectSection.updateDisplay()
-          }
-          
-          if (file instanceof TFile){
+
             this.dayTaskSection.ElMap.forEach(async (container: DayTaskContainer) => {
               container.ElMap.forEach(async (t: DayTask) => {
                 if (t.file.stat.ctime === file.stat.ctime){
@@ -252,6 +239,16 @@ export class MainPageView extends ItemView implements IVaultEventHandler {
                   await weekTask.updateTitle(file.basename)
                 }
             })
+          }
+          else if (file instanceof TFolder) {
+            await this.handleFolderRename(file, oldPath);
+            const proj = this.projectSection.projects.find((p: Project) => {
+              return p.folder.path === this.getParentPath(oldPath);
+            })
+            if (proj) {
+              proj.folder = file.parent ? file.parent : proj.folder;
+            }
+            await this.projectSection.updateDisplay()
           }
     }
 

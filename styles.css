@@ -614,6 +614,9 @@ svg rect.sidebar-toggle-icon-inner, .titlebar-button.mod-close svg path{
   width: 3.7vw;
   justify-content: space-between !important;
 }
+.week-task-text-container.calendar-prev{
+  margin-right: 1vw;
+}
 .calendar-prev, .calendar-next, .today-btn{
   font-size: var(--header-text-size);
   font-weight: 600 !important;
