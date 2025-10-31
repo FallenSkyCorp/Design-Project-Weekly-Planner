@@ -1,6 +1,6 @@
 {
 	"name": "design-project-and-weekly-planner",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "A stylish project and weekly planner plugin. It combines elegant design with practical task management to enhance your daily workflow. Perfect for users who value both aesthetics and organization in their productivity tools.",
 	"main": "main.js",
 	"scripts": {
