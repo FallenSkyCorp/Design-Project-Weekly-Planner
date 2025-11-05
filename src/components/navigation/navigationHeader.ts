@@ -1,8 +1,7 @@
 import { fromDateToSlashDate } from "src/views/utilFunctions/dateUtils";
 import { IEventListener } from "../interfaces/IEventListener";
 import { TargetEventListenerTuple } from "src/types/targetEventListenerTuple";
-import { getStartOfWeek, getWeekDays } from "src/entities/weekManager";
-import { getDetailsString, getNextButton, getPrevButton, getTodayButton, } from "./navigationElements";
+import { getNextButton, getPrevButton, getTodayButton, } from "./navigationElements";
 import { HeaderType, } from "./types";
 import { MONTH_NAMES } from "src/constants/constants";
 
@@ -109,8 +108,8 @@ export class NavigationHeader implements IEventListener{
       return this.HTMLEl
     }
 
-  public onBlur(e: Event){
-    const event = e as any;
+  /*public onBlur(e: Event){
+    const event = e;
     const content = event.target.value as string
     const dateObj = this.isValidDate(content)
     if (!dateObj){
@@ -119,7 +118,7 @@ export class NavigationHeader implements IEventListener{
     const startDate = getStartOfWeek(dateObj as Date)
     const week: Date[] = getWeekDays(startDate)
     return week
-  }
+  }*/
 
   private isValidDate(dateString: string): boolean | Date{
     // 1. Проверить формат строки (опционально, но рекомендуется)
@@ -128,7 +127,7 @@ export class NavigationHeader implements IEventListener{
     const match = dateString.match(dateRegex);
   
     if (!match) {
-      console.log(`[isValidDate] Неверный формат: ${dateString}`);
+      //console.log(`[isValidDate] Неверный формат: ${dateString}`);
       return false; // Строка не соответствует формату DD/MM/YYYY
     }
   
@@ -139,15 +138,15 @@ export class NavigationHeader implements IEventListener{
   
     // 3. Проверить диапазоны (дополнительная проверка)
     if (day < 1 || day > 31) {
-      console.log(`[isValidDate] Неверный день: ${day}`);
+      //console.log(`[isValidDate] Неверный день: ${day}`);
       return false;
     }
     if (month < 1 || month > 12) {
-      console.log(`[isValidDate] Неверный месяц: ${month}`);
+      //console.log(`[isValidDate] Неверный месяц: ${month}`);
       return false;
     }
     if (year < 1000 || year > 9999) {
-      console.log(`[isValidDate] Неверный год: ${year}`);
+      //console.log(`[isValidDate] Неверный год: ${year}`);
       return false;
     }
   
@@ -161,10 +160,10 @@ export class NavigationHeader implements IEventListener{
       dateObject.getDate() === day;
   
     if (!isValid) {
-      console.log(`[isValidDate] Неверная дата: ${dateString} (Date object: ${dateObject})`);
+      //console.log(`[isValidDate] Неверная дата: ${dateString} (Date object: ${dateObject})`);
       return isValid
     } else {
-      console.log(`[isValidDate] Валидная дата: ${dateString}`);
+      //console.log(`[isValidDate] Валидная дата: ${dateString}`);
       return dateObject
     }
   }

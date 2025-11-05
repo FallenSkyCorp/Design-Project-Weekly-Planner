@@ -1,6 +1,6 @@
 import { App, TFile, TFolder } from "obsidian";
 import { Point } from "./point";
-import { createOrGetNote, createProjectPoint, getFolders, getMarkdownsByPath, getNumberToUntitled, openMarkdownFile } from "src/markdown/markdownManager";
+import { createProjectPoint, getMarkdownsByPath, getNumberToUntitled, openMarkdownFile } from "src/markdown/markdownManager";
 import { EventListenerTuple } from "src/types/eventListenerTuple";
 
 
@@ -22,44 +22,56 @@ export class Project{
       this.parentEl = parentEl; 
     }
 
-    private async renderPointList(): Promise<void>{
+    private renderPointList(): void{
       this.points.forEach((point: Point) => {
         point.remove();
       });
       this.pointContainer.empty()
-      this.points.forEach(async (point: Point) => {
-        await point.render();
+      this.points.forEach((point: Point) => {
+        point.render();
       });
     }
 
-    public async render(): Promise<void>{
+    public render(): void{
       this.HTMLEl = this.parentEl.createDiv({ cls: Project.cls});
       this.HTMLEl.createDiv({ text: this.folder.name, cls: "project-name"});
       this.pointContainer  = this.HTMLEl.createEl("ul", { cls: ["day-tasks-container"]});
-      await this.loadPoints();
-      await this.renderPointList();
+      this.loadPoints();
+      this.renderPointList();
       if (this.listeners.length){
         return
       }
-      this.addEventListener("click", async (ev: MouseEvent) => {
-        ev.preventDefault();
-        await openMarkdownFile(this.mainPoint)
+      this.addEventListener("click", (ev: MouseEvent) => {
+        void (async () => 
+          {
+            ev.preventDefault();
+            await openMarkdownFile(this.mainPoint)
+          }
+        )();
       })
-      this.addEventListener("contextmenu", async (ev: MouseEvent) => {
+      this.addEventListener("contextmenu", (ev: MouseEvent) => {
         ev.preventDefault();
-        await this.createNewPoint()
+        void (async () => 
+          {
+            await this.createNewPoint()
+          }
+        )();
       });
-      this.addEventListener("mousedown", async (ev: MouseEvent) => {
+      this.addEventListener("mousedown", (ev: MouseEvent) => {
         ev.preventDefault()
-        if (ev.button === 1){
-          await this.delete()
-        }
+        void (async () => 
+          {
+            if (ev.button === 1){
+              await this.delete()
+            }
+          }
+        )();
       })
     }
 
     private async createNewPoint(){
       let baseName = "Untitled";
-      const untitledFiles: TFile[] = await getMarkdownsByPath(this.app.vault, this.folder.path, (f: TFile) => {return f.basename.contains(baseName)});
+      const untitledFiles: TFile[] = getMarkdownsByPath(this.app.vault, this.folder.path, (f: TFile) => {return f.basename.contains(baseName)});
       if (untitledFiles.length < 1){
         baseName = "Untitled 1"
         const pointFile: TFile = await createProjectPoint(this.app.vault, this.folder.name, baseName)
@@ -99,8 +111,8 @@ export class Project{
       })
       this.points.clear()
     }
-    public async loadPoints(): Promise<void>{
-      const points = await getMarkdownsByPath(this.app.vault, this.folder.path);
+    public loadPoints(): void{
+      const points = getMarkdownsByPath(this.app.vault, this.folder.path);
       points.map((p : TFile) => { 
         if (p.basename === this.folder.name){
           this.mainPoint = p;
@@ -116,7 +128,7 @@ export class Project{
       this.HTMLEl.remove();
     }
     public async delete(): Promise<void>{
-      await this.app.vault.delete(this.folder, true)
+      await this.app.fileManager.trashFile(this.folder)
       this.remove()
     }
 

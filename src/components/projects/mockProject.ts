@@ -1,6 +1,6 @@
-import { App, TFile, TFolder, Vault } from "obsidian";
+import { App, TFile, TFolder } from "obsidian";
 import { Project } from "./project";
-import { createOrGetNote, createProject, createProjectPoint, getFolders, getNumberToUntitled } from "src/markdown/markdownManager";
+import { createProject, createProjectPoint, getFolders, getNumberToUntitled } from "src/markdown/markdownManager";
 import { EventListenerTuple } from "src/types/eventListenerTuple";
 
 export class MockProject{

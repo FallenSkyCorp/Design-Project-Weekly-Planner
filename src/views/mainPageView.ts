@@ -1,14 +1,14 @@
-import { EventRef, ItemView, Plugin, TAbstractFile, Tasks, TFile, TFolder, Vault, WorkspaceLeaf } from "obsidian";
+import { ItemView,  TAbstractFile, TFile, TFolder,  WorkspaceLeaf } from "obsidian";
 
-import { basePluginPath, DAY_NAMES, LEFT_PANEL_ITEMS, PROJECT_DISPLAY_COUNT } from "../constants/constants";
+import { basePluginPath, DAY_NAMES,  } from "../constants/constants";
 import { removeElementByClassName } from "src/views/utilFunctions/removeElementsUtilities"
-import { changeIsCompleteStatus, checkIsCompleteStatus, createOrGetNote, getDateFromFrontMatter, getFolders, getFrontmatter, getMarkdownsByDate, getMarkdownsByPath, getMarkdownsByType, getNoteContentTemplate, getNotesWithoutContent, getWeekMarkdowns, openMarkdownFile } from "../markdown/markdownManager";
+import { changeIsCompleteStatus, checkIsCompleteStatus, createOrGetNote, getDateFromFrontMatter, getFolders, getFrontmatter, getMarkdownsByDate,  openMarkdownFile } from "../markdown/markdownManager";
 import { NavigationHeader } from "src/components/navigation/navigationHeader";
 import { WeekManager } from "../entities/weekManager";
 import { WeekTasksSection } from "src/components/weekTasks/weekTaskSection";
 import { DayTaskContainer } from "src/components/dayTasks/dayTaskContainer";
 import { DayTask } from "src/components/dayTasks/dayTask";
-import { fromDateToSlashDate, prepareDateForWeekFolder } from "./utilFunctions/dateUtils";
+import { fromDateToSlashDate } from "./utilFunctions/dateUtils";
 import { WeekTask } from "src/components/weekTasks/weekTask";
 import { ProjectSection } from "src/components/projects/projectSection";
 import { Project } from "src/components/projects/project";
@@ -20,7 +20,7 @@ import KleinPlugin from "main";
 import { CALENDAR_VIEW_TYPE } from "./calendarView";
 import { IVaultEventHandler } from "./interfaces/IVaultEventHandler";
 
-const log = console.log
+//const log = console.log
 
 export const MAIN_PAGE_VIEW_TYPE = "main-page-view"
 
@@ -69,21 +69,21 @@ export class MainPageView extends ItemView implements IVaultEventHandler {
         ev.preventDefault()
         this.weekManager.goToPreviousWeek()
         const week: Date[] = this.weekManager.getWeek()
-        await this.renderWeek(week)
+        this.renderWeek(week)
         await this.weekTasksSection.loadWeekTasks(week[0], week[6])
       })
       this.registerDomEvent(this.header.todayButton, "click", async (ev: MouseEvent) => {
         ev.preventDefault()
         this.weekManager.goToCurrentDate()
         const week = this.weekManager.getWeek()
-        await this.renderWeek(week)
+        this.renderWeek(week)
         await this.weekTasksSection.loadWeekTasks(week[0], week[6])
       })
       this.registerDomEvent(this.header.nextButton, "click", async (ev: MouseEvent) => {
         ev.preventDefault()
         this.weekManager.goToNextWeek()
         const week: Date[] = this.weekManager.getWeek()
-        await this.renderWeek(week)
+        this.renderWeek(week)
         await this.weekTasksSection.loadWeekTasks(week[0], week[6])
       })
       this.registerDomEvent(this.header.details, "click", async (ev: MouseEvent) => {
@@ -96,11 +96,11 @@ export class MainPageView extends ItemView implements IVaultEventHandler {
       this.dayTaskSection = new DayTaskSection(calendarGridContainer);
       this.dayTaskSection.render()
 
-      const currWeek = await this.renderWeek(this.weekManager.getWeek())
+      const currWeek = this.renderWeek(this.weekManager.getWeek())
 
       // WEEK TASK
       this.weekTasksSection = new WeekTasksSection(this.app, calendar)
-      this.weekTasksSection.loadWeekTasks(this.weekManager.getWeek()[0], this.weekManager.getWeek()[6])
+      await this.weekTasksSection.loadWeekTasks(this.weekManager.getWeek()[0], this.weekManager.getWeek()[6])
 
 
       for (const [k, t] of this.weekTasksSection.ElMap){
@@ -225,18 +225,18 @@ export class MainPageView extends ItemView implements IVaultEventHandler {
                 proj.points.set(file.basename, point)
               }
             }
-            await this.projectSection.updateDisplay()
+            this.projectSection.updateDisplay()
 
-            this.dayTaskSection.ElMap.forEach(async (container: DayTaskContainer) => {
-              container.ElMap.forEach(async (t: DayTask) => {
+            this.dayTaskSection.ElMap.forEach((container: DayTaskContainer) => {
+              container.ElMap.forEach((t: DayTask) => {
                 if (t.file.stat.ctime === file.stat.ctime){
-                  await t.updateTitle(file.basename)
+                    t.updateTitle(file.basename)
                 }
               })
             })
-            this.weekTasksSection.ElMap.forEach(async (weekTask: WeekTask) => {
+            this.weekTasksSection.ElMap.forEach((weekTask: WeekTask) => {
               if (weekTask.file.stat.ctime === file.stat.ctime){
-                  await weekTask.updateTitle(file.basename)
+                    weekTask.updateTitle(file.basename)
                 }
             })
           }
@@ -248,7 +248,7 @@ export class MainPageView extends ItemView implements IVaultEventHandler {
             if (proj) {
               proj.folder = file.parent ? file.parent : proj.folder;
             }
-            await this.projectSection.updateDisplay()
+            this.projectSection.updateDisplay()
           }
     }
 
@@ -258,9 +258,12 @@ export class MainPageView extends ItemView implements IVaultEventHandler {
             return;
           }
           const frontmatter = await getFrontmatter(this.app, file)
+          if (!frontmatter){
+            return
+          }
 
-          this.dayTaskSection.ElMap.forEach(async (container: DayTaskContainer) => {
-            container.ElMap.forEach(async (task) => {
+          this.dayTaskSection.ElMap.forEach((container: DayTaskContainer) => {
+            container.ElMap.forEach((task) => {
               if (task?.file.stat.ctime === file.stat.ctime){
               if (frontmatter.CHECK){
                 if (task.HTMLEl.classList.contains("is-complete")){
@@ -282,9 +285,11 @@ export class MainPageView extends ItemView implements IVaultEventHandler {
             })
         })
 
-          this.weekTasksSection.ElMap.forEach(async (task) => {
+          this.weekTasksSection.ElMap.forEach((task) => {
             if (task?.file.stat.ctime === file.stat.ctime){
-              await task.updateDescription()
+              void (async () => {
+                await task.updateDescription()
+              })();
               if (frontmatter.CHECK){
                 if (task.HTMLEl.classList.contains("is-complete")){
                   return
@@ -322,10 +327,12 @@ export class MainPageView extends ItemView implements IVaultEventHandler {
           if (diff.length < 1){
             return
           }
-          projFolder.children.forEach(async (f: TAbstractFile) => {
+          projFolder.children.forEach((f: TAbstractFile) => {
             if (f instanceof TFile){
               if (diff.contains(f.basename)){
-                await this.app.vault.delete(f, true);
+                void (async () => {
+                  await this.app.vault.delete(f, true);
+                })();
               }
             }
           })
@@ -339,7 +346,7 @@ export class MainPageView extends ItemView implements IVaultEventHandler {
             const project = this.projectSection.projects.find((p: Project) => p.folder.name === file.name);
             if (project){
               this.projectSection.removeProject(project);
-              await this.projectSection.updateDisplay()
+              this.projectSection.updateDisplay()
             }
           }
           if (file instanceof TFile){
@@ -358,17 +365,19 @@ export class MainPageView extends ItemView implements IVaultEventHandler {
               return file.path.contains(p.folder.path);
             });
             if (project){
-              project.folder.children.find(async (f: TAbstractFile) => {
+              project.folder.children.forEach((f: TAbstractFile) => {
                 if (f instanceof TFile){
                   if (f.basename === project.folder.name){
-                    const fileContent = await this.app.vault.cachedRead(f);
-                    //log(fileContent)
-                    //log(`File: basename: ${file.basename}`)
-                    const newContent = fileContent.replace(`- [[${file.basename}]]`, "")
-                    //log(newContent)
-                    await this.app.vault.modify(f, newContent);
-                    //log(project.points)
-                    project.removePointByName(file.basename)
+                    void (async () => {
+                      const fileContent = await this.app.vault.cachedRead(f);
+                      //log(fileContent)
+                      //log(`File: basename: ${file.basename}`)
+                      const newContent = fileContent.replace(`- [[${file.basename}]]`, "")
+                      //log(newContent)
+                      await this.app.vault.modify(f, newContent);
+                      //log(project.points)
+                      project.removePointByName(file.basename)
+                    })(); 
                   }
                 }
               });
@@ -382,12 +391,12 @@ export class MainPageView extends ItemView implements IVaultEventHandler {
       return [dayOfWeek, date]
     }
 
-    private async getCurrentDateMarkdowns(day: Date): Promise<TFile[]>{
-      const markdowns: TFile[] | [] = await getMarkdownsByDate(this.app.vault, "day", day)
+    private getCurrentDateMarkdowns(day: Date): TFile[]{
+      const markdowns: TFile[] | [] = getMarkdownsByDate(this.app.vault, "day", day)
       const currentDateMarkdowns: TFile[] = [];
       for (const md of markdowns){
           const currDate: string = fromDateToSlashDate(day);
-          const mdDate: string | undefined = await getDateFromFrontMatter(this.app, md);
+          const mdDate: string | undefined = getDateFromFrontMatter(this.app, md);
           if (currDate === mdDate){
             currentDateMarkdowns.push(md);
           }
@@ -395,13 +404,13 @@ export class MainPageView extends ItemView implements IVaultEventHandler {
       return currentDateMarkdowns;
     }
 
-    private async renderWeek(weekDays: Date[]): Promise<void> {
+    private renderWeek(weekDays: Date[]): void {
       this.dayTaskSection.empty()
 
       for (let i = 0; i < weekDays.length; i++){
         const day = weekDays[i];
 
-        const currentDateMarkdowns: TFile[] = await this.getCurrentDateMarkdowns(day);
+        const currentDateMarkdowns: TFile[] = this.getCurrentDateMarkdowns(day);
 
         const dayTaskContainer: DayTaskContainer = new DayTaskContainer(this.app, this.dayTaskSection.HTMLEl, day.getDay().toString(), day, () => this.selectDayHandler(dayTaskContainer))
 
@@ -492,6 +501,7 @@ export class MainPageView extends ItemView implements IVaultEventHandler {
     try {
       await this.app.fileManager.renameFile(folder, newFolderPath);
     } catch (error) {
+      console.error("Error in file renaming")
     } 
   }
 

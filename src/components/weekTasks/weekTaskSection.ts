@@ -1,6 +1,6 @@
 import { App, TFile } from "obsidian";
-import { checkIsCompleteStatus, getMarkdownsByDate, getMarkdownsByPath, getWeekMarkdowns } from "src/markdown/markdownManager";
-import { prepareDateForFolder, prepareDateForWeekFolder } from "src/views/utilFunctions/dateUtils";
+import { checkIsCompleteStatus, getWeekMarkdowns } from "src/markdown/markdownManager";
+import { prepareDateForWeekFolder } from "src/views/utilFunctions/dateUtils";
 import { WeekTask } from "./weekTask";
 import { BaseSection } from "../abstracts/baseSection";
 
@@ -78,7 +78,7 @@ export class WeekTasksSection extends BaseSection<WeekTask>{
     this.removeAllElements();
     this.weekTasksContainer.empty()
     const weekFolderPath:string = prepareDateForWeekFolder(startDay, endDay);
-    const weekTaskMd: TFile[] = await getWeekMarkdowns(this.app.vault, weekFolderPath)
+    const weekTaskMd: TFile[] = getWeekMarkdowns(this.app.vault, weekFolderPath)
     const weekTaskArray: WeekTask[]  = weekTaskMd.map((md: TFile) => {
       const t = new WeekTask(this.app, checkIsCompleteStatus(this.app, md), this.weekTasksContainer, md)
       return t;

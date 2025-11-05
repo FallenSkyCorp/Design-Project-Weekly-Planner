@@ -1,4 +1,4 @@
-import { stringifyYaml, normalizePath, parseYaml, TFile, Vault, WorkspaceLeaf, TFolder, TAbstractFile, App, MarkdownView, FrontMatterCache, CachedMetadata } from "obsidian";
+import { normalizePath, parseYaml, TFile, Vault, WorkspaceLeaf, TFolder, TAbstractFile, App, MarkdownView, FrontMatterCache, CachedMetadata } from "obsidian";
 
 import { fromDateToSlashDate, prepareDateForFolder, prepareDateForWeekFolder } from "src/views/utilFunctions/dateUtils";
 import { NoteType } from "../types/noteType";
@@ -6,6 +6,7 @@ import { NoteWithoutContent } from "../entities/noteData";
 import { basePluginPath, templatesPath } from "src/constants/constants";
 import { getStartOfWeek } from "src/entities/weekManager";
 import { setFrontmatter } from "./templatesBuilder";
+import { Frontmatter } from "src/types/frontmatter";
 
 
 export async function changeIsCompleteStatus(app: App, file: TFile): Promise<boolean>{
@@ -48,7 +49,7 @@ function getFronmatterFromCache(app: App, file: TFile): FrontMatterCache | undef
   return app.metadataCache.getFileCache(file)?.frontmatter;
 }
 
-export async function getFrontmatter(app: App, file: TFile): Promise<any | null>{
+export async function getFrontmatter(app: App, file: TFile): Promise< Frontmatter | null>{
   if (!file || !(file instanceof TFile) || file.extension !== 'md') {
     console.warn("Указан недопустимый файл или файл не является markdown.");
     return null;
@@ -61,7 +62,8 @@ export async function getFrontmatter(app: App, file: TFile): Promise<any | null>
     if (match) {
       const frontmatterYaml = match[1];
       const yamlObj = parseYaml(frontmatterYaml)
-      return yamlObj
+      const frontmatter: Frontmatter = { DATE: yamlObj.DATE, CHECK: yamlObj.CHECK}
+      return frontmatter
     } else {
       //console.log("Frontmatter не найден.");
       return null;
@@ -79,16 +81,16 @@ export async function removeFrontmatter(app: App, file: TFile): Promise<string>{
   return resContent;
 }
 
-export async function getDateFromFrontMatterByPath(app: App, filePath: string): Promise<string | undefined>{
+export function getDateFromFrontMatterByPath(app: App, filePath: string): string | undefined{
   const file = app.vault.getFileByPath(filePath);
   if (file){
-    const frontmatter = await getDateFromFrontMatter(app, file);
+    const frontmatter = getDateFromFrontMatter(app, file);
     return frontmatter;
   }
   return undefined;
 }
 
-export async function getDateFromFrontMatter(app: App, file: TFile): Promise<string | undefined>{
+export function getDateFromFrontMatter(app: App, file: TFile): string | undefined{
   const frontmatter = getFronmatterFromCache(app, file);
   return frontmatter?.DATE
 }
@@ -134,7 +136,7 @@ async function getNote(app: App, noteType: NoteType, noteName: string, date: Dat
   if (!note){
     return null;
   }
-  const noteDate: string | undefined = await getDateFromFrontMatter(app, note);
+  const noteDate: string | undefined = getDateFromFrontMatter(app, note);
   if (noteDate === fromDateToSlashDate(date)){
     return note;
   }
@@ -202,7 +204,7 @@ export async function openMarkdownFile(file: TFile): Promise<void> {
   }
 }
 
-export async function getMarkdownsByType(vault: Vault, mdType: NoteType, predicate: (md: TFile) => boolean = () => true): Promise<TFile[] | []>{
+export function getMarkdownsByType(vault: Vault, mdType: NoteType, predicate: (md: TFile) => boolean = () => true): TFile[]{
   const markdowns: TFile[] = [];
 
   const path: string = `${basePluginPath}/${mdType}`
@@ -220,7 +222,7 @@ export async function getMarkdownsByType(vault: Vault, mdType: NoteType, predica
   return markdowns.filter(predicate);
 }
 
-export async function getMarkdownsByDate(vault: Vault, mdType: NoteType, date: Date, predicate: (md: TFile) => boolean = () => true): Promise<TFile[] | []>{
+export function getMarkdownsByDate(vault: Vault, mdType: NoteType, date: Date, predicate: (md: TFile) => boolean = () => true): TFile[]{
   const markdowns: TFile[] = [];
   const folderName: string = prepareDateForFolder(date)
   const path: string = `${basePluginPath}/${mdType}/${folderName}`
@@ -237,7 +239,7 @@ export async function getMarkdownsByDate(vault: Vault, mdType: NoteType, date: D
   return markdowns.filter(predicate);
 }
 
-export async function getWeekMarkdowns(vault: Vault, weekFolder: string, predicate: (md: TFile) => boolean = () => true){
+export function getWeekMarkdowns(vault: Vault, weekFolder: string, predicate: (md: TFile) => boolean = () => true){
   const mdType: NoteType = "week";
   const folderPath = `${basePluginPath}/${mdType}/${weekFolder}`
   const mardowns: TFile[] = [];
@@ -255,7 +257,7 @@ export async function getWeekMarkdowns(vault: Vault, weekFolder: string, predica
   return mardowns.filter(predicate);
 }
 
-export async function getMarkdownsByPath(vault: Vault, folderPath: string, predicate: (md: TFile) => boolean = () => true): Promise<TFile[] | []>{
+export function getMarkdownsByPath(vault: Vault, folderPath: string, predicate: (md: TFile) => boolean = () => true): TFile[]{
   const mardowns: TFile[] = [];
   const folder: TFolder | null= vault.getFolderByPath(folderPath)
 
@@ -271,7 +273,7 @@ export async function getMarkdownsByPath(vault: Vault, folderPath: string, predi
   return mardowns.filter(predicate);
 }
 
-export async function getNotesWithoutContent(vault: Vault, noteType: NoteType, predicate: (note: NoteWithoutContent) => boolean = () => true): Promise<NoteWithoutContent[] | null>
+export function getNotesWithoutContent(vault: Vault, noteType: NoteType, predicate: (note: NoteWithoutContent) => boolean = () => true): NoteWithoutContent[] | null
 {
   const folderPath: string = `${basePluginPath}/${noteType}`;
   const folder: TFolder | null = vault.getFolderByPath(folderPath);

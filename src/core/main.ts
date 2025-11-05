@@ -1,4 +1,4 @@
-import { App, ItemView, Plugin, TAbstractFile, TFile, TFolder, WorkspaceLeaf } from 'obsidian';
+import { Plugin, TAbstractFile, TFile, WorkspaceLeaf } from 'obsidian';
 
 import { CalendarView, CALENDAR_VIEW_TYPE } from '../views/calendarView';
 import { MainPageView, MAIN_PAGE_VIEW_TYPE } from 'src/views/mainPageView';
@@ -28,16 +28,20 @@ export default class KleinPlugin extends Plugin {
 		(leaf) => new CalendarView(leaf, this)
 	  );
 	
-	  this.addRibbonIcon('dice', 'Open Klein Homepage', () => {
-      	this.activateView(MAIN_PAGE_VIEW_TYPE);
+	  this.addRibbonIcon('dice', 'Open main page', () => {
+		void (async () => {
+			await this.activateView(MAIN_PAGE_VIEW_TYPE);
+		})();
       });
     
       // Добавление команды для открытия
       this.addCommand({
         id: 'open-homepage',
-        name: 'Открыть домашнюю страницу',
+        name: 'Открыть главную страницу',
         callback: () => {
-          this.activateView(MAIN_PAGE_VIEW_TYPE);
+			void (async () => {
+				await this.activateView(MAIN_PAGE_VIEW_TYPE);
+			})();
         }
       });
 
@@ -90,7 +94,7 @@ export default class KleinPlugin extends Plugin {
 		
 		// Make this leaf active and ensure it's visible
 		workspace.setActiveLeaf(leaf, { focus: true });
-		workspace.revealLeaf(leaf);
+		await workspace.revealLeaf(leaf);
 		
 		return leaf;
 	}
@@ -101,52 +105,18 @@ export default class KleinPlugin extends Plugin {
 	public deleteView(viewType: string){
 		this.activeViews.delete(viewType)
 	}
-
-	// Метод для применения настроек через CSS-переменные
+	toKebabCase(str: string): string {
+  		const newStr = str.replace(/[A-Z]/g, (match) => '-' + match.toLowerCase());
+		return `--${newStr}`
+	}
     applySettings() {
-      // Найдем или создадим элемент стиля для наших переменных
-      let styleEl = document.getElementById('my-dynamic-css-plugin-styles');
-      if (!styleEl) {
-        styleEl = document.createElement('style');
-        styleEl.id = 'my-dynamic-css-plugin-styles';
-        document.head.appendChild(styleEl);
-      }
-
-      // Сформируем CSS с переопределением переменных
-      const css = `
-        :root {
-	      --bg-main: ${this.settings.primaryBackground};
-	  	--bg-secondary: ${this.settings.secondaryBackground};
-	  	--tab-bg-active: ${this.settings.tabBackgroundActive};
-		--selected-day-border-color: ${this.settings.selectedDayBorderColor};
-  
-	  	--other-month-background: ${this.settings.otherMonthBackground};
-      	--current-day-background: ${this.settings.currDayBackground};
-	  	--text-color: ${this.settings.textColor};
-	  	--description-text: ${this.settings.descriptionTextColor};
-
-	  	--caret-color-1: ${this.settings.caretColor};
-
-	  	--svg-color: ${this.settings.iconColor};
-	  	--icon-color-hover: ${this.settings.iconColor};
-
-	  	--checkbox-marker-color-1: ${this.settings.checkboxColor};
-	  	--checkbox-color-1: ${this.settings.checkboxColor};
-	  	--checkbox-color-hover-1: ${this.settings.checkboxColor};
-	  	--checkbox-border-color-1: ${this.settings.checkboxColor};
-	  	--checkbox-border-color-hover-1: ${this.settings.checkboxColor};
-
-		--scrollbar-thumb-bg-1: ${this.settings.scrollbarColor};
-		--scrollbar-active-thumb-bg-1: ${this.settings.scrollbarColor};
-
-		--header-text-size: ${this.settings.headerTextSize}px; 
-    	--task-text-size: ${this.settings.taskTextSize}px;
-        }
-      `;
-
-    // Обновим содержимое элемента стиля
-    styleEl.textContent = css;
-  }
+	  let key: keyof typeof this.settings
+	  for (key in this.settings){
+		const val = this.settings[key]
+		const cssStyleName = this.toKebabCase(key)
+		document.documentElement.style.setProperty(cssStyleName, val.value)
+	  }
+    }
 	async loadSettings() {  this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());  }
   	async saveSettings() { 
 		 await this.saveData(this.settings);  
@@ -215,34 +185,44 @@ export default class KleinPlugin extends Plugin {
 
 	private registerVaultEvents(): void{
       this.registerEvent(this.app.vault.on("create", async (file: TAbstractFile) => {
-        this.activeViews.forEach(async (view) => {
-			await view.vaultOnCreate(file);
+        this.activeViews.forEach((view) => {
+			void (async () => {
+				await view.vaultOnCreate(file);
+			})();
 		})
       }));
 
       this.registerEvent(this.app.vault.on("rename", async (file: TAbstractFile, oldPath: string) => {
-          this.activeViews.forEach(async (view) => {
-			await view.vaultOnRename(file, oldPath);
+          this.activeViews.forEach((view) => {
+			void (async () => {
+				await view.vaultOnRename(file, oldPath);
+			})();
 		})
       }));
 
       this.registerEvent(this.app.vault.on("modify", async (file: TAbstractFile) => {
-          this.activeViews.forEach(async (view) => {
-			await view.vaultOnModify(file);
+          this.activeViews.forEach((view) => {
+			void (async () => {
+				await view.vaultOnModify(file);
+			})();
 		})
       }));
 
       this.registerEvent(this.app.vault.on("delete", async (file: TAbstractFile) => {
-		this.activeViews.forEach(async (view) => {
-			await view.vaultOnDelete(file);
+		this.activeViews.forEach((view) => {
+			void (async () => {
+				await view.vaultOnDelete(file);
+			})();
 		});
 		if (!(file instanceof TFile) || file.path.includes("project")) return;
 			
 		const folders = this.app.vault.getAllFolders()
-		folders.forEach(async (folder) => {
-			if (!folder.children.length){
-				await this.app.vault.delete(folder)
-			}
+		folders.forEach((folder) => {
+			void (async () => {
+				if (!folder.children.length){
+					await this.app.vault.delete(folder)
+				}
+			})();
 		})
       }));
     }

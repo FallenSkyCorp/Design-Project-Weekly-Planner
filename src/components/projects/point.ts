@@ -1,5 +1,4 @@
 import { TFile } from "obsidian";
-import { EventListenerTuple } from "src/types/eventListenerTuple";
 import { openMarkdownFile } from "src/markdown/markdownManager";
 import { BasePoint } from "../abstracts/basePoint";
 
@@ -11,17 +10,25 @@ export class Point extends BasePoint{
       super(parentEl, file)
     }
 
-    public async render(): Promise<void>{
+    public render(): void{
       this.HTMLEl = this._parentEl.createEl("li", { text: this.file.basename, cls: Point.cls})
-      this.addEventListener("click", async (ev: MouseEvent) => {
-            ev.stopPropagation()
-            ev.preventDefault();
+      this.addEventListener("click", (ev: MouseEvent) => {
+        ev.stopPropagation()
+        ev.preventDefault();
+        void (async () => 
+          {
             await openMarkdownFile(this.file)
+          }
+        )(); 
       })
-      this.addEventListener("mousedown", async (ev: MouseEvent) => {
+      this.addEventListener("mousedown", (ev: MouseEvent) => {
         ev.stopPropagation()
         ev.preventDefault()
-        await this.handleDelete(ev);
+        void (async () => 
+          {
+            await this.handleDelete(ev);
+          }
+        )();
       })
     }
 

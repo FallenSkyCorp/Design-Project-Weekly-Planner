@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, Notice, TFolder, TFile, TAbstractFile } from "obsidian";
+import { ItemView, WorkspaceLeaf, TFile, TAbstractFile } from "obsidian";
 
 import { DAY_NAMES } from "src/constants/constants"
 import { NavigationHeader } from "src/components/navigation/navigationHeader";
@@ -92,21 +92,21 @@ export class CalendarView extends ItemView implements IVaultEventHandler{
       return
     }
     if (file.path.contains("day")){
-      this.monthSection.ElMap.forEach((dayTaskContainer: DayTaskContainer) => {
+      for (const [k, dayTaskContainer] of this.monthSection.ElMap){
         if(file.path.contains(dayTaskContainer.date.toISOString().split("T")[0].split("-").reverse().join("-"))){
           if(!dayTaskContainer.ElMap.get(file.basename)){
-            dayTaskContainer.addElement(new DayTask(this.app, checkIsCompleteStatus(this.app, file), dayTaskContainer.dayTasksContainer, file))
+            await dayTaskContainer.addElement(new DayTask(this.app, checkIsCompleteStatus(this.app, file), dayTaskContainer.dayTasksContainer, file))
           }
         }
-      })
+      }
     }
   }
-  public async vaultOnRename(file: TAbstractFile, oldPath: string): Promise<void> {
+  public vaultOnRename(file: TAbstractFile, oldPath: string): void {
     if (file instanceof TFile){
-      this.monthSection.ElMap.forEach(async (container: DayTaskContainer) => {
-      container.ElMap.forEach(async (t: DayTask) => {
+      this.monthSection.ElMap.forEach((container: DayTaskContainer) => {
+      container.ElMap.forEach((t: DayTask) => {
       if (t.file.stat.ctime === file.stat.ctime){
-        await t.updateTitle(file.basename)
+          t.updateTitle(file.basename)
       }
     })
     })}
@@ -117,9 +117,12 @@ export class CalendarView extends ItemView implements IVaultEventHandler{
        return;
     }
     const frontmatter = await getFrontmatter(this.app, file)
+    if (!frontmatter){
+      return
+    }
     
-    this.monthSection.ElMap.forEach(async (container: DayTaskContainer) => {
-      container.ElMap.forEach(async (task) => {
+    this.monthSection.ElMap.forEach((container: DayTaskContainer) => {
+      container.ElMap.forEach((task) => {
         if (task?.file.stat.ctime === file.stat.ctime){
         if (frontmatter.CHECK){
           if (task.HTMLEl.classList.contains("is-complete")){
@@ -141,7 +144,7 @@ export class CalendarView extends ItemView implements IVaultEventHandler{
       })
     })
   }
-  public async vaultOnDelete(file: TAbstractFile): Promise<void> {
+  public vaultOnDelete(file: TAbstractFile): void {
     if (!(file instanceof TFile)){
       return
     }

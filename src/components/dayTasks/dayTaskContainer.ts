@@ -2,7 +2,7 @@ import { TargetEventListenerTuple } from "src/types/targetEventListenerTuple";
 import { BaseSection } from "../abstracts/baseSection";
 import { DayTask } from "./dayTask";
 import { App, TFile } from "obsidian";
-import { createOrGetNote, checkIsCompleteStatus, openMarkdownFile } from "src/markdown/markdownManager";
+import { createOrGetNote } from "src/markdown/markdownManager";
 
 export class DayTaskContainer extends BaseSection<DayTask>{
   public app: App;
@@ -32,35 +32,39 @@ export class DayTaskContainer extends BaseSection<DayTask>{
       this.dateWeekContainer = this.dayContainer.createDiv("date-week-container")
       this.dayTasksContainer = this.dayContainer.createEl("ul", "day-tasks-container")
     }
-    this.addEventListener(this.HTMLEl, "click", async (ev: MouseEvent) => {
+    this.addEventListener(this.HTMLEl, "click", (ev: MouseEvent) => {
       ev.preventDefault()
       ev.stopPropagation()
       this.selectedDateCallback()
     })
 
-    this.addEventListener(this.dayContainer, "contextmenu", async (ev: MouseEvent) => {
+    this.addEventListener(this.dayContainer, "contextmenu", (ev: MouseEvent) => {
       ev.stopPropagation();
       ev.preventDefault();
-      const task: TFile | null = await createOrGetNote(this.app, "day", "", this.date)
-      if (!task){
-        return
-      }
+      void (async () => 
+        {
+          const task: TFile | null = await createOrGetNote(this.app, "day", "", this.date)
+          if (!task){
+            return
+          }
+        }
+      )();
     })
   }
 
-  public renderElements(): void{
+  public async renderElements(): Promise<void>{
     if (!this.HTMLEl){
       this.render()
     }
 
     for (const [key, value] of this.ElMap){
-      value.render()
+      await value.render()
     }
   }
 
-  public addElement(task: DayTask): void{
+  public async addElement(task: DayTask): Promise<void>{
     this.ElMap.set(task.file.basename, task);
-    task.render()
+    await task.render()
   }
   public addElemetList(tasks: DayTask[]): void{
     for (const t of tasks){

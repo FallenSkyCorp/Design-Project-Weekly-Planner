@@ -16,9 +16,9 @@ export abstract class BasePoint implements IRenderible, IRemovable, IDeletable{
       this.file = file;
     }
 
-    public abstract render(): void;
-    public abstract updateTitle(text: string): void;
-    public abstract delete(): void;
+    abstract render(): Promise<void> | void;
+    public abstract updateTitle(text: string): Promise<void> | void;
+    public abstract delete(): Promise<void> | void;
     public remove(): void{
         this.removeAllEventListeners();
         this.HTMLEl?.remove();

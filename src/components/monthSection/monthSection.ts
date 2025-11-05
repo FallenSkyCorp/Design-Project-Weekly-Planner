@@ -1,10 +1,9 @@
-import { EventListenerTuple } from "src/types/eventListenerTuple";
 import { TargetEventListenerTuple } from "src/types/targetEventListenerTuple";
 import { BaseSection } from "../abstracts/baseSection";
 import { DayTask } from "../dayTasks/dayTask";
 import { IEventListener } from "../interfaces/IEventListener";
 import { DayTaskContainer } from "../dayTasks/dayTaskContainer";
-import { checkIsCompleteStatus, getDateFromFrontMatter, getMarkdownsByDate, getMarkdownsByType } from "src/markdown/markdownManager";
+import { checkIsCompleteStatus, getMarkdownsByDate } from "src/markdown/markdownManager";
 import { App, TFile } from "obsidian";
 
 
@@ -34,8 +33,8 @@ export class MonthSection extends BaseSection<DayTaskContainer> implements IEven
       }
     }
 
-    private async getCurrentDateMarkdowns(day: Date): Promise<TFile[]>{
-      const currentDateMarkdowns: TFile[] | [] = await getMarkdownsByDate(this.app.vault, "day", day)
+    private getCurrentDateMarkdowns(day: Date): TFile[]{
+      const currentDateMarkdowns: TFile[] | [] = getMarkdownsByDate(this.app.vault, "day", day)
       return currentDateMarkdowns;
     }
 
@@ -97,13 +96,13 @@ export class MonthSection extends BaseSection<DayTaskContainer> implements IEven
           this.setDayStyles(dayContainer.dayContainer, currentDate)
           
           currentDate.setDate(currentDate.getDate() + 1);
-          const files: TFile[] = await this.getCurrentDateMarkdowns(currentDate)
+          const files: TFile[] = this.getCurrentDateMarkdowns(currentDate)
 
           const tasks = files.map((f) => {
             return new DayTask(this.app, checkIsCompleteStatus(this.app, f), dayContainer.dayTasksContainer, f)
           })
           dayContainer.addElemetList(tasks)
-          dayContainer.renderElements()
+          await dayContainer.renderElements()
           this.addElement(dayContainer)
       }
     }
@@ -114,7 +113,7 @@ export class MonthSection extends BaseSection<DayTaskContainer> implements IEven
         this.removeAllEventListeners()
         this.HTMLEl.empty()
     }
-    public renderElements(): void {
+    public async renderElements(): Promise<void> {
       return
     }
     public addElement(el: DayTaskContainer): void {

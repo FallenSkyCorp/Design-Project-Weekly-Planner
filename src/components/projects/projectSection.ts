@@ -1,9 +1,7 @@
-import { App, Component, TFolder, Vault } from "obsidian";
+import { App, TFolder } from "obsidian";
 import { Project } from "./project";
 import { MockProject } from "./mockProject";
-import { getFolders } from "src/markdown/markdownManager";
 import { getNextButton, getPrevButton } from "../navigation/navigationElements";
-import { NavigationHeader } from "../navigation/navigationHeader";
 
 
 export class ProjectSection{
@@ -34,12 +32,12 @@ export class ProjectSection{
       this.updateDisplay();
     }
   }
-  public handleNextClick() {
+  public handleNextClick(): void {
     this.startIndex = this.startIndex + this.DISPLAY_COUNT;
     this.updateDisplay();
   }
 
-  public async updateDisplay() {
+  public updateDisplay() {
     if (!this.HTMLEl) return;
 
     this.deleteMockProjects()
@@ -51,9 +49,10 @@ export class ProjectSection{
     // Очищаем текущую область отображения
     this.container.empty(); // Используем метод Obsidian для очистки
     // Создаем и добавляем элементы для текущей страницы
-    currentItems.forEach(async (p: Project) => {
-      await p.render()
+    currentItems.forEach((p: Project) => {
+        p.render()
     });
+
     let mockProjectToDisplay = this.DISPLAY_COUNT - currentItems.length;
   
     for (let i = 0; i < mockProjectToDisplay; i++){
@@ -78,24 +77,28 @@ export class ProjectSection{
   }
 
 
-  private async renderMockProject(): Promise<void>{ 
+  private renderMockProject(): void{ 
     const mockProj = new MockProject(this.container, this.app)
     this.mockProjects.push(mockProj)
     mockProj.render()
-    mockProj.addEventListener("click", async (ev: MouseEvent) => {
+    mockProj.addEventListener("click", (ev: MouseEvent) => {
       ev.preventDefault();
-      const projFolder: TFolder = await mockProj.createNewProject();
-      await this.addNewProject(new Project(this.app, projFolder, this.container));
-      await this.updateDisplay();
+      void (async () => 
+        {
+          const projFolder: TFolder = await mockProj.createNewProject();
+          this.addNewProject(new Project(this.app, projFolder, this.container));
+          this.updateDisplay();
+        }
+      )(); 
     })
   }
   public deleteMockProjects(): void{
     this.mockProjects?.forEach((p : MockProject) => p?.remove())
   }
-  public async addNewProject(proj: Project): Promise<void>{
+  public addNewProject(proj: Project): void{
     this.projects.push(proj);
   }
-  public async addProjectList(projects: Project[]): Promise<void>{
+  public addProjectList(projects: Project[]): void{
     for (const p of projects){
       this.projects.push(p);
     }

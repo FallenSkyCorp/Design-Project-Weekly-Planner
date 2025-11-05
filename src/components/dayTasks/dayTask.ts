@@ -22,20 +22,33 @@ export class DayTask extends BasePoint{
     if (this.isComplete){
       this.HTMLEl?.addClass("is-complete")
     }
-    this.addEventListener("mousedown", async (ev: MouseEvent) => { 
+    this.addEventListener("mousedown", (ev: MouseEvent) => { 
       ev.preventDefault()
-      await this.handleDelete(ev)
-    })
-    this.addEventListener("click", async (ev: MouseEvent) => {
+      void (async () => 
+        {
+          await this.handleDelete(ev)
+        }
+      )();
+    });
+    this.addEventListener("click", (ev: MouseEvent) => {
       ev.stopPropagation();
       ev.preventDefault();
-      openMarkdownFile(this.file)
+      void (async () => 
+        {
+          await openMarkdownFile(this.file)
+        }
+      )();
     })
-    this.addEventListener("contextmenu", async (ev: MouseEvent) => {
+    this.addEventListener("contextmenu", (ev: MouseEvent) => {
       ev.stopPropagation();
       ev.preventDefault();
-      const isComplete: boolean = await changeIsCompleteStatus(this.app, this.file)
-      this.setIsComplete(isComplete);
+      void (async () => 
+        {
+          const isComplete: boolean = await changeIsCompleteStatus(this.app, this.file)
+          this.setIsComplete(isComplete);
+        }
+      )();
+      
     })
   }
 
@@ -46,7 +59,7 @@ export class DayTask extends BasePoint{
   }
 
   public async delete(): Promise<void> {
-    await this.file.vault.delete(this.file, true);
+    await this.app.fileManager.trashFile(this.file)
     this.remove()
   }
 
@@ -60,8 +73,7 @@ export class DayTask extends BasePoint{
     }
   }
 
-  public async updateTitle(newText: string): Promise<HTMLElement>{
+  public updateTitle(newText: string): void{
     this.HTMLEl.setText(newText)
-    return this.HTMLEl
   }
 }

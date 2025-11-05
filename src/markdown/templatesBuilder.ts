@@ -23,19 +23,24 @@ const nesessaryMarkdowns = [
 export async function createPluginFoldersAndFiles(app: App): Promise<void>{
   for (const path of nesessaryFoldersPathArray){
     try{
-        await app.vault.createFolder(path);
+        const existFolder = app.vault.getFolderByPath(path)
+        if (!existFolder){
+          await app.vault.createFolder(path);
+        }
     }
     catch (e){
-
+      console.error("Error when creating plugins folders")
     }
   }
   for (const md of nesessaryMarkdowns){
     try{
-        const file = await app.vault.create(md.path, md.content)
-        //await setFrontmatter(app, file)
+      const existFile = app.vault.getFileByPath(md.path)
+      if (!existFile){
+        await app.vault.create(md.path, md.content)
+      }
     }
     catch (e){
-
+      console.error("Error when creating plugins templates files")
     }
   }
 }
