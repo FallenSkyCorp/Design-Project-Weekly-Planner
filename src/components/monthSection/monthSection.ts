@@ -71,7 +71,7 @@ export class MonthSection extends BaseSection<DayTaskContainer> implements IEven
         }
     }
 
-    public async renderMonth(date: Date): Promise<void>{
+    public renderMonth(date: Date): void{
         this.removeAllElements()
         const currentYear = date.getFullYear();
         const currentMonth = date.getMonth(); // 0-11
@@ -102,7 +102,7 @@ export class MonthSection extends BaseSection<DayTaskContainer> implements IEven
             return new DayTask(this.app, checkIsCompleteStatus(this.app, f), dayContainer.dayTasksContainer, f)
           })
           dayContainer.addElemetList(tasks)
-          await dayContainer.renderElements()
+          dayContainer.renderElements()
           this.addElement(dayContainer)
       }
     }
@@ -113,7 +113,7 @@ export class MonthSection extends BaseSection<DayTaskContainer> implements IEven
         this.removeAllEventListeners()
         this.HTMLEl.empty()
     }
-    public async renderElements(): Promise<void> {
+    public renderElements(): void {
       return
     }
     public addElement(el: DayTaskContainer): void {

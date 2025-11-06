@@ -54,23 +54,23 @@ export class CalendarView extends ItemView implements IVaultEventHandler{
     
     this.monthSection = new MonthSection(this.app, calendar)
     this.monthSection.render()
-    await this.monthSection.renderMonth(this.date)
+    this.monthSection.renderMonth(this.date)
     
     this.registerDomEvent(this.header.prevButton, "click", async (ev: MouseEvent) => {
       ev.preventDefault()
       this.date.setMonth(this.date.getMonth() - 1);
-      await this.onMonthChange(this.date)
+      this.onMonthChange(this.date)
       this.header.editMonthDate(this.date)
     })
     this.registerDomEvent(this.header.todayButton, "click", async (ev: MouseEvent) => {
       ev.preventDefault()
       this.date = new Date()
-      await this.onMonthChange(this.date)
+      this.onMonthChange(this.date)
     })
     this.registerDomEvent(this.header.nextButton, "click", async (ev: MouseEvent) => {
       ev.preventDefault()
       this.date.setMonth(this.date.getMonth() + 1);
-      await this.onMonthChange(this.date)
+      this.onMonthChange(this.date)
       this.header.editMonthDate(this.date)
     })
     this.registerDomEvent(this.header.details, "click", async (ev: MouseEvent) => {
@@ -82,8 +82,8 @@ export class CalendarView extends ItemView implements IVaultEventHandler{
     this.plugin.deleteView(this.getViewType());
   }
 
-  private async onMonthChange(date: Date): Promise<void>{
-    await this.monthSection.renderMonth(date);
+  private onMonthChange(date: Date): void{
+    this.monthSection.renderMonth(date);
   }
 
 

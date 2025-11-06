@@ -1,3 +1,3 @@
 export interface IRemovable{
-    remove(): void;
+    remove(): void | Promise<void>;
 }

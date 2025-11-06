@@ -52,19 +52,19 @@ export class DayTaskContainer extends BaseSection<DayTask>{
     })
   }
 
-  public async renderElements(): Promise<void>{
+  public renderElements(): void{
     if (!this.HTMLEl){
       this.render()
     }
 
     for (const [key, value] of this.ElMap){
-      await value.render()
+      value.render()
     }
   }
 
-  public async addElement(task: DayTask): Promise<void>{
+  public addElement(task: DayTask): void{
     this.ElMap.set(task.file.basename, task);
-    await task.render()
+    task.render()
   }
   public addElemetList(tasks: DayTask[]): void{
     for (const t of tasks){

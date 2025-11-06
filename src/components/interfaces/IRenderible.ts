@@ -1,3 +1,3 @@
 export interface IRenderible{
-    render: () => void;
+    render: () => void | Promise<void>;
 }

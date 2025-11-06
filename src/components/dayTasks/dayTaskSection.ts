@@ -17,7 +17,7 @@ export class DayTaskSection extends BaseSection<DayTaskContainer>{
         this.removeAllElements()
         this.HTMLEl.empty()
     }
-    public async renderElements(): Promise<void> {
+    public renderElements(): void {
       if (!this.HTMLEl){
         this.HTMLEl = this._parentEl.createEl("ul", "day-tasks-container")
       }

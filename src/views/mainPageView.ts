@@ -338,7 +338,7 @@ export class MainPageView extends ItemView implements IVaultEventHandler {
           })
         }
     }
-    public async vaultOnDelete(file: TAbstractFile): Promise<void> {
+    public vaultOnDelete(file: TAbstractFile): void {
       if (!file) {
             return;
           }

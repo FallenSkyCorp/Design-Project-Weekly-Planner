@@ -1,3 +1,3 @@
 export interface IDeletable{
-    delete: () => void;
+    delete: () => void | Promise<void>;
 }

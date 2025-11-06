@@ -129,7 +129,7 @@ async function createNewNote(app: App, noteType: NoteType, noteName: string, dat
   return null;
 }
 
-async function getNote(app: App, noteType: NoteType, noteName: string, date: Date): Promise<TFile | null>{
+function getNote(app: App, noteType: NoteType, noteName: string, date: Date): TFile | null{
   const folderName: string = prepareDateForFolder(date)
   const notePath: string = `${basePluginPath}/${noteType}/${folderName}/${noteName}.md`;
   const note: TFile | null = app.vault.getFileByPath(notePath);
@@ -144,7 +144,7 @@ async function getNote(app: App, noteType: NoteType, noteName: string, date: Dat
 }
 
 export async function createOrGetNote(app: App, noteType: NoteType, noteName: string, date: Date): Promise<TFile | null>{
-  const existNote = await getNote(app, noteType, noteName, date)
+  const existNote = getNote(app, noteType, noteName, date)
 
   if (existNote){
     return existNote

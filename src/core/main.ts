@@ -184,7 +184,7 @@ export default class KleinPlugin extends Plugin {
 	}
 
 	private registerVaultEvents(): void{
-      this.registerEvent(this.app.vault.on("create", async (file: TAbstractFile) => {
+      this.registerEvent(this.app.vault.on("create", (file: TAbstractFile) => {
         this.activeViews.forEach((view) => {
 			void (async () => {
 				await view.vaultOnCreate(file);
@@ -192,7 +192,7 @@ export default class KleinPlugin extends Plugin {
 		})
       }));
 
-      this.registerEvent(this.app.vault.on("rename", async (file: TAbstractFile, oldPath: string) => {
+      this.registerEvent(this.app.vault.on("rename", (file: TAbstractFile, oldPath: string) => {
           this.activeViews.forEach((view) => {
 			void (async () => {
 				await view.vaultOnRename(file, oldPath);
@@ -200,7 +200,7 @@ export default class KleinPlugin extends Plugin {
 		})
       }));
 
-      this.registerEvent(this.app.vault.on("modify", async (file: TAbstractFile) => {
+      this.registerEvent(this.app.vault.on("modify", (file: TAbstractFile) => {
           this.activeViews.forEach((view) => {
 			void (async () => {
 				await view.vaultOnModify(file);
@@ -208,7 +208,7 @@ export default class KleinPlugin extends Plugin {
 		})
       }));
 
-      this.registerEvent(this.app.vault.on("delete", async (file: TAbstractFile) => {
+      this.registerEvent(this.app.vault.on("delete", (file: TAbstractFile) => {
 		this.activeViews.forEach((view) => {
 			void (async () => {
 				await view.vaultOnDelete(file);

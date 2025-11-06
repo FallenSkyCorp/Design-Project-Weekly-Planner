@@ -14,7 +14,7 @@ export class DayTask extends BasePoint{
     this.isComplete = isComplete;
   }
 
-  public async render(): Promise<void>{
+  public render(): void{
     if (this.HTMLEl){
       return
     }
