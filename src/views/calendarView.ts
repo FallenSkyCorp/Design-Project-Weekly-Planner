@@ -87,7 +87,7 @@ export class CalendarView extends ItemView implements IVaultEventHandler{
   }
 
 
-  public async vaultOnCreate(file: TAbstractFile): Promise<void> {
+  public vaultOnCreate(file: TAbstractFile): void {
     if (!(file instanceof TFile) || file.extension !== "md"){
       return
     }
