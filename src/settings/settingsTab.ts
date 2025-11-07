@@ -23,7 +23,7 @@ export class KleinSettingTab extends PluginSettingTab {
 		// --- Функция для обновления состояния пикеров/инпутов ---
         // Это поможет избежать перезаписи при сбросе
         const updatePickerValue = (picker: ColorComponent | TextComponent, value: string | number) => {
-            if (picker && (typeof picker.setValue === 'function')) {
+            if (picker && typeof picker.setValue === 'function' && !(picker.setValue instanceof Promise)) {
                 picker.setValue(value.toString()); // setValue обычно ожидает строку
             }
         };

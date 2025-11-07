@@ -56,18 +56,18 @@ export class CalendarView extends ItemView implements IVaultEventHandler{
     this.monthSection.render()
     this.monthSection.renderMonth(this.date)
     
-    this.registerDomEvent(this.header.prevButton, "click", async (ev: MouseEvent) => {
+    this.registerDomEvent(this.header.prevButton, "click", (ev: MouseEvent) => {
       ev.preventDefault()
       this.date.setMonth(this.date.getMonth() - 1);
       this.onMonthChange(this.date)
       this.header.editMonthDate(this.date)
     })
-    this.registerDomEvent(this.header.todayButton, "click", async (ev: MouseEvent) => {
+      this.registerDomEvent(this.header.todayButton, "click", (ev: MouseEvent) => {
       ev.preventDefault()
       this.date = new Date()
       this.onMonthChange(this.date)
     })
-    this.registerDomEvent(this.header.nextButton, "click", async (ev: MouseEvent) => {
+    this.registerDomEvent(this.header.nextButton, "click", (ev: MouseEvent) => {
       ev.preventDefault()
       this.date.setMonth(this.date.getMonth() + 1);
       this.onMonthChange(this.date)
@@ -95,7 +95,7 @@ export class CalendarView extends ItemView implements IVaultEventHandler{
       for (const [k, dayTaskContainer] of this.monthSection.ElMap){
         if(file.path.contains(dayTaskContainer.date.toISOString().split("T")[0].split("-").reverse().join("-"))){
           if(!dayTaskContainer.ElMap.get(file.basename)){
-            await dayTaskContainer.addElement(new DayTask(this.app, checkIsCompleteStatus(this.app, file), dayTaskContainer.dayTasksContainer, file))
+            dayTaskContainer.addElement(new DayTask(this.app, checkIsCompleteStatus(this.app, file), dayTaskContainer.dayTasksContainer, file))
           }
         }
       }
